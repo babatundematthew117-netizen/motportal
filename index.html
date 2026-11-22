@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOT Student Portal - MindSpark Online Tutorial</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0f2042',
+                            900: '#1e3a8a',
+                            700: '#1e293b'
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            400: '#fbbf24'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- MODAL CONTAINER FOR EDITING -->
+    <div id="modal-container" class="fixed inset-0 z-50 bg-slate-950/60 flex items-center justify-center p-4 hidden">
+        <div id="modal-content-box" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <!-- Dynamically populated edit modal body -->
+        </div>
+    </div>
+
+    <!-- FLOATING CALCULATOR WIDGET (MANUAL TOGGLE ONLY) -->
+    <div id="calculator-widget" class="fixed bottom-5 right-5 z-50 hidden shadow-2xl rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-900 w-72 text-white transition-all">
+        <div class="bg-navy-800 px-4 py-2.5 flex justify-between items-center cursor-move border-b border-slate-700">
+            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                <i class="fas fa-calculator"></i> Exam Calculator
+            </span>
+            <button onclick="window.toggleCalculator(false)" class="text-slate-400 hover:text-white text-xs p-1">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-3 space-y-3">
+            <input type="text" id="calc-display" readonly value="0" class="w-full bg-slate-950 text-right px-3 py-2 rounded-xl text-xl font-mono text-emerald-400 font-bold border border-slate-800 outline-none">
+            <div class="grid grid-cols-4 gap-1.5 text-xs font-bold">
+                <button onclick="window.calcClear()" class="bg-red-600/80 hover:bg-red-600 p-2.5 rounded-lg text-white">C</button>
+                <button onclick="window.calcSqrt()" class="bg-slate-700 hover:bg-slate-600 p-2.5 rounded-lg text-amber-400">√</button>
+                <button onclick="window.calcBackspace()" class="bg-slate-700 hover:bg-slate-600 p-2.5 rounded-lg text-slate-300"><i class="fas fa-backspace"></i></button>
+                <button onclick="window.calcOp('/')" class="bg-amber-500 hover:bg-amber-600 p-2.5 rounded-lg text-slate-950">÷</button>
+
+                <button onclick="window.calcNum('7')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">7</button>
+                <button onclick="window.calcNum('8')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">8</button>
+                <button onclick="window.calcNum('9')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">9</button>
+                <button onclick="window.calcOp('*')" class="bg-amber-500 hover:bg-amber-600 p-2.5 rounded-lg text-slate-950">×</button>
+
+                <button onclick="window.calcNum('4')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">4</button>
+                <button onclick="window.calcNum('5')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">5</button>
+                <button onclick="window.calcNum('6')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">6</button>
+                <button onclick="window.calcOp('-')" class="bg-amber-500 hover:bg-amber-600 p-2.5 rounded-lg text-slate-950">-</button>
+
+                <button onclick="window.calcNum('1')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">1</button>
+                <button onclick="window.calcNum('2')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">2</button>
+                <button onclick="window.calcNum('3')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">3</button>
+                <button onclick="window.calcOp('+')" class="bg-amber-500 hover:bg-amber-600 p-2.5 rounded-lg text-slate-950">+</button>
+
+                <button onclick="window.calcNum('0')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg col-span-2">0</button>
+                <button onclick="window.calcNum('.')" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-lg">.</button>
+                <button onclick="window.calcEqual()" class="bg-emerald-600 hover:bg-emerald-500 p-2.5 rounded-lg text-white">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app" class="flex-grow flex flex-col min-h-screen">
+        <!-- HEADER / NAVIGATION BAR -->
+        <header class="bg-navy-800 text-white shadow-md sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="window.appState.currentUser ? window.navigateTo('dashboard') : null">
+                    <img src="https://i.postimg.cc/vDj6h2rf/MOT.png" alt="MOT Logo" class="h-10 w-auto object-contain bg-white/10 rounded p-1" onerror="this.onerror=null; this.src='https://placehold.co/100x100/0f2042/ffffff?text=MOT';">
+                    <div>
+                        <span class="text-lg font-extrabold tracking-wide text-white block leading-none">MOT PORTAL</span>
+                        <span class="text-[10px] text-amber-400 font-medium tracking-widest uppercase block mt-0.5">MindSpark Online Tutorial</span>
+                    </div>
+                </div>
+
+                <div id="nav-user-controls" class="flex items-center gap-3">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div id="view-container"></div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-slate-900 text-slate-400 text-sm py-6 border-t border-slate-800 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 text-center flex flex-col md:flex-row justify-between items-center gap-2">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-white">MindSpark Online Tutorial (MOT)</span>
+                    <span>&bull; UTME/JAMB Excellence System</span>
+                </div>
+                <p>&copy; 2026 MOT Academic System. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- FIREBASE & MAIN MODULE SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-analytics.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCvQnkPVEEY_OTnqyPJtS4skwJExkrTwA4",
+            authDomain: "mindsparkonline-ab500.firebaseapp.com",
+            projectId: "mindsparkonline-ab500",
+            storageBucket: "mindsparkonline-ab500.firebasestorage.app",
+            messagingSenderId: "798632520292",
+            appId: "1:798632520292:web:0e7110f1372acc97d60d71",
+            measurementId: "G-62728KLQJX"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        // Application Data Object synced with Firestore collections
+        let appData = {
+            accessCodes: [],
+            questions: [],
+            flashcards: [],
+            mockExams: [],
+            studentAttempts: []
+        };
+
+        // Realtime Firestore Listeners
+        const collectionsList = ['accessCodes', 'questions', 'flashcards', 'mockExams', 'studentAttempts'];
+        collectionsList.forEach(colName => {
+            onSnapshot(collection(db, colName), (snapshot) => {
+                const items = [];
+                snapshot.forEach(docSnap => {
+                    items.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                appData[colName] = items;
+                console.log(`Firestore Synced [${colName}]:`, items.length);
+                if (window.renderApp) window.renderApp();
+            }, (error) => {
+                console.error(`Firestore Error on ${colName}:`, error);
+            });
+        });
+
+        // Helper function to save/update an item in Firestore
+        window.saveFirestoreDoc = async function(colName, id, data) {
+            try {
+                await setDoc(doc(db, colName, id), data);
+                console.log(`Saved to Firestore [${colName}/${id}]`);
+            } catch (err) {
+                console.error("Firestore write error:", err);
+                window.showToast("Cloud sync warning: Check Firestore rules.", "warning");
+            }
+        };
+
+        // Helper function to delete an item in Firestore
+        window.deleteFirestoreDoc = async function(colName, id) {
+            try {
+                await deleteDoc(doc(db, colName, id));
+                console.log(`Deleted from Firestore [${colName}/${id}]`);
+            } catch (err) {
+                console.error("Firestore delete error:", err);
+            }
+        };
+
+        let appState = {
+            currentUser: JSON.parse(localStorage.getItem('mot_user_session')) || null,
+            currentView: 'login',
+            activeTab: 'mocks',
+            activeQuiz: null,
+            activeExamSubjectFilter: 'ALL',
+            quizTimer: null,
+            practiceSelections: {
+                subjects: [],
+                subjectTopics: {},
+                timerMins: 20
+            }
+        };
+
+        window.appState = appState;
+
+        // =========================================================================
+        // CALCULATOR ENGINE
+        // =========================================================================
+        let calcVal = "0";
+        let calcNewNum = true;
+
+        window.toggleCalculator = function(show) {
+            const calc = document.getElementById('calculator-widget');
+            if (!calc) return;
+            if (show === undefined) {
+                calc.classList.toggle('hidden');
+            } else if (show) {
+                calc.classList.remove('hidden');
+            } else {
+                calc.classList.add('hidden');
+            }
+        };
+
+        window.calcNum = function(num) {
+            const display = document.getElementById('calc-display');
+            if (calcVal === "0" || calcNewNum) {
+                calcVal = num;
+                calcNewNum = false;
+            } else {
+                calcVal += num;
+            }
+            display.value = calcVal;
+        };
+
+        window.calcOp = function(op) {
+            calcVal += ' ' + op + ' ';
+            calcNewNum = false;
+            document.getElementById('calc-display').value = calcVal;
+        };
+
+        window.calcClear = function() {
+            calcVal = "0";
+            calcNewNum = true;
+            document.getElementById('calc-display').value = calcVal;
+        };
+
+        window.calcBackspace = function() {
+            if (calcVal.length > 1) {
+                calcVal = calcVal.trim().slice(0, -1).trim();
+                if (calcVal === "") calcVal = "0";
+            } else {
+                calcVal = "0";
+            }
+            document.getElementById('calc-display').value = calcVal;
+        };
+
+        window.calcSqrt = function() {
+            try {
+                const evalVal = eval(calcVal.replace(/×/g, '*').replace(/÷/g, '/'));
+                if (evalVal < 0) {
+                    document.getElementById('calc-display').value = "Error";
+                    calcVal = "0";
+                    calcNewNum = true;
+                    return;
+                }
+                const res = Math.sqrt(evalVal);
+                calcVal = res.toString();
+                document.getElementById('calc-display').value = calcVal;
+                calcNewNum = true;
+            } catch(e) {
+                document.getElementById('calc-display').value = "Error";
+                calcVal = "0";
+                calcNewNum = true;
+            }
+        };
+
+        window.calcEqual = function() {
+            try {
+                const sanitized = calcVal.replace(/×/g, '*').replace(/÷/g, '/');
+                const res = eval(sanitized);
+                calcVal = Number.isInteger(res) ? res.toString() : res.toFixed(4).toString();
+                document.getElementById('calc-display').value = calcVal;
+                calcNewNum = true;
+            } catch(e) {
+                document.getElementById('calc-display').value = "Error";
+                calcVal = "0";
+                calcNewNum = true;
+            }
+        };
+
+        // =========================================================================
+        // NOTIFICATION TOAST SYSTEM
+        // =========================================================================
+        window.showToast = function(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600' :
+                            type === 'error' ? 'bg-red-600' :
+                            type === 'warning' ? 'bg-amber-600' : 'bg-navy-800';
+            
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-xl shadow-xl text-xs sm:text-sm font-semibold transition-all transform translate-y-2 opacity-0 flex items-center gap-2 pointer-events-auto max-w-md`;
+            let icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        };
+
+        // =========================================================================
+        // ROUTING & APP STATE
+        // =========================================================================
+        window.navigateTo = function(view, tab = null) {
+            appState.currentView = view;
+            if (tab) appState.activeTab = tab;
+            if (view !== 'exam-session') window.toggleCalculator(false);
+            window.renderApp();
+        };
+
+        window.renderApp = function() {
+            renderHeaderControls();
+            const container = document.getElementById('view-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!appState.currentUser && appState.currentView !== 'login') {
+                appState.currentView = 'login';
+            }
+
+            switch(appState.currentView) {
+                case 'login': renderLoginView(container); break;
+                case 'admin':
+                    if (appState.currentUser?.role !== 'admin') {
+                        window.showToast('Access denied', 'error');
+                        appState.currentView = 'dashboard';
+                        window.renderApp();
+                        return;
+                    }
+                    renderAdminDashboard(container);
+                    break;
+                case 'dashboard': renderStudentDashboard(container); break;
+                case 'exam-session': renderExamSessionView(container); break;
+                default: renderLoginView(container);
+            }
+        };
+
+        function renderHeaderControls() {
+            const container = document.getElementById('nav-user-controls');
+            if (!container) return;
+            if (!appState.currentUser) {
+                container.innerHTML = `
+                    <button onclick="window.navigateTo('login')" class="text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Sign In
+                    </button>
+                `;
+                return;
+            }
+
+            const isStudent = appState.currentUser.role === 'student';
+            container.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-[10px] text-slate-300">Logged in as</div>
+                        <div class="text-xs font-bold text-amber-400">
+                            ${appState.currentUser.name} 
+                            <span class="text-[9px] bg-slate-800 text-white px-1.5 py-0.5 rounded border border-slate-700 ml-1">
+                                ${isStudent ? appState.currentUser.code : 'ADMIN'}
+                            </span>
+                        </div>
+                    </div>
+
+                    ${!isStudent ? `
+                        <button onclick="window.navigateTo('admin')" class="text-xs bg-amber-500 hover:bg-amber-400 text-navy-800 font-bold px-3 py-1.5 rounded-lg transition shadow">
+                            <i class="fas fa-user-shield mr-1"></i> Admin Panel
+                        </button>
+                    ` : ''}
+
+                    ${isStudent && appState.currentView !== 'dashboard' ? `
+                        <button onclick="window.navigateTo('dashboard')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white font-medium px-3 py-1.5 rounded-lg transition">
+                            <i class="fas fa-home mr-1"></i> Dashboard
+                        </button>
+                    ` : ''}
+
+                    <button onclick="window.logout()" class="text-xs bg-red-600/80 hover:bg-red-600 text-white font-medium px-2.5 py-1.5 rounded-lg transition">
+                        <i class="fas fa-power-off"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        window.logout = function() {
+            if (appState.quizTimer) clearInterval(appState.quizTimer);
+            appState.currentUser = null;
+            appState.activeQuiz = null;
+            localStorage.removeItem('mot_user_session');
+            window.toggleCalculator(false);
+            window.showToast('Logged out successfully', 'info');
+            window.navigateTo('login');
+        };
+
+        // =========================================================================
+        // AUTHENTICATION
+        // =========================================================================
+        function renderLoginView(container) {
+            container.innerHTML = `
+                <div class="max-w-md mx-auto my-8 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+                    <div class="bg-navy-800 p-6 text-center text-white relative">
+                        <img src="https://i.postimg.cc/vDj6h2rf/MOT.png" alt="MOT Logo" class="h-16 mx-auto mb-2 bg-white/10 rounded-lg p-1.5 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/120x120/0f2042/ffffff?text=MOT';">
+                        <h2 class="text-xl font-bold">MindSpark Online Tutorial</h2>
+                        <p class="text-xs text-amber-400 mt-1 uppercase font-semibold tracking-wider">MOT Student Portal</p>
+                    </div>
+
+                    <div class="flex border-b border-slate-200 bg-slate-50 text-sm font-semibold">
+                        <button id="tab-btn-student" onclick="window.toggleAuthTab('student')" class="flex-1 py-3 text-navy-800 border-b-2 border-amber-500 bg-white">
+                            <i class="fas fa-user-graduate mr-1"></i> Student Login
+                        </button>
+                        <button id="tab-btn-admin" onclick="window.toggleAuthTab('admin')" class="flex-1 py-3 text-slate-500 hover:text-navy-800 border-b-2 border-transparent">
+                            <i class="fas fa-user-shield mr-1"></i> Admin Login
+                        </button>
+                    </div>
+
+                    <div id="form-student-login" class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Student Access Code</label>
+                            <input type="text" id="student-code-input" placeholder="Enter your code" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-lg font-mono font-bold uppercase tracking-wider text-navy-800 bg-slate-50">
+                        </div>
+                        <button onclick="window.handleStudentLogin()" class="w-full bg-navy-800 hover:bg-navy-900 text-amber-400 font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                            <span>Access MOT Portal</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <div class="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500 text-center">
+                            Click <div style="color:blue;"> <a href="https://wa.me/2348058382531"> ADMIN</a> </div>to ask for your unique student access code. 
+                        </div>
+                    </div>
+
+                    <div id="form-admin-login" class="p-6 space-y-4 hidden">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Admin Passcode</label>
+                            <input type="password" id="admin-pass-input" placeholder="Enter Admin Passcode" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-lg font-mono text-navy-800 bg-slate-50">
+                            <p class="text-xs text-slate-500 mt-2">Passcode for <code class="bg-slate-200 px-1 py-0.5 rounded font-bold">ADMIN ONLY</code></p>
+                        </div>
+                        <button onclick="window.handleAdminLogin()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                            <span>Admin Portal Access</span>
+                            <i class="fas fa-shield-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.toggleAuthTab = function(tab) {
+            const studentBtn = document.getElementById('tab-btn-student');
+            const adminBtn = document.getElementById('tab-btn-admin');
+            const studentForm = document.getElementById('form-student-login');
+            const adminForm = document.getElementById('form-admin-login');
+
+            if (tab === 'student') {
+                studentBtn.className = "flex-1 py-3 text-navy-800 border-b-2 border-amber-500 bg-white font-bold";
+                adminBtn.className = "flex-1 py-3 text-slate-500 hover:text-navy-800 border-b-2 border-transparent";
+                studentForm.classList.remove('hidden');
+                adminForm.classList.add('hidden');
+            } else {
+                adminBtn.className = "flex-1 py-3 text-navy-800 border-b-2 border-amber-500 bg-white font-bold";
+                studentBtn.className = "flex-1 py-3 text-slate-500 hover:text-navy-800 border-b-2 border-transparent";
+                adminForm.classList.remove('hidden');
+                studentForm.classList.add('hidden');
+            }
+        };
+
+        window.handleStudentLogin = function() {
+            const codeInput = document.getElementById('student-code-input').value.trim().toUpperCase();
+            if (!codeInput) return window.showToast('Please enter an access code', 'warning');
+
+            const match = appData.accessCodes.find(c => c.code.toUpperCase() === codeInput);
+            if (match) {
+                appState.currentUser = { role: 'student', code: match.code, name: match.studentName };
+                localStorage.setItem('mot_user_session', JSON.stringify(appState.currentUser));
+                window.showToast(`Welcome back, ${match.studentName}!`, 'success');
+                window.navigateTo('dashboard', 'mocks');
+            } else {
+                window.showToast('Invalid access code. Contact MOT Admin.', 'error');
+            }
+        };
+
+        window.handleAdminLogin = function() {
+            if (document.getElementById('admin-pass-input').value === 'ADMIN123') {
+                appState.currentUser = { role: 'admin', code: 'ADMIN', name: 'MOT Administrator' };
+                localStorage.setItem('mot_user_session', JSON.stringify(appState.currentUser));
+                window.showToast('Logged in as Administrator', 'success');
+                window.navigateTo('admin');
+            } else {
+                window.showToast('Invalid admin password', 'error');
+            }
+        };
+
+        // =========================================================================
+        // STUDENT PORTAL DASHBOARD
+        // =========================================================================
+        function renderStudentDashboard(container) {
+            const user = appState.currentUser;
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-navy-800 via-navy-900 to-slate-900 text-white rounded-2xl p-6 mb-6 shadow-xl relative">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <div class="inline-flex items-center gap-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs px-3 py-1 rounded-full font-bold uppercase mb-2">
+                                <i class="fas fa-id-badge"></i> Code: ${user.code}
+                            </div>
+                            <h1 class="text-2xl sm:text-3xl font-extrabold">Welcome, ${user.name}!</h1>
+                            <p class="text-slate-300 text-xs sm:text-sm mt-1">Custom multi-subject practice and exam drills with real-time scoring.</p>
+                        </div>
+                        <button onclick="window.navigateTo('dashboard', 'practice')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow flex items-center gap-2">
+                            <i class="fas fa-bolt"></i> Multi-Subject Practice
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex border-b border-slate-200 mb-6 space-x-2 sm:space-x-4 overflow-x-auto pb-1">
+                    <button onclick="window.switchStudentTab('mocks')" id="tab-mocks" class="student-nav-tab py-3 px-4 font-bold text-xs sm:text-sm rounded-t-xl transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-file-signature"></i> Scheduled Mocks
+                    </button>
+                    <button onclick="window.switchStudentTab('practice')" id="tab-practice" class="student-nav-tab py-3 px-4 font-bold text-xs sm:text-sm rounded-t-xl transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-sliders-h"></i> Custom Practice
+                    </button>
+                    <button onclick="window.switchStudentTab('vault')" id="tab-vault" class="student-nav-tab py-3 px-4 font-bold text-xs sm:text-sm rounded-t-xl transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-search"></i> JAMB Question Vault
+                    </button>
+                    <button onclick="window.switchStudentTab('flashcards')" id="tab-flashcards" class="student-nav-tab py-3 px-4 font-bold text-xs sm:text-sm rounded-t-xl transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-clone"></i> Flashcard Hub
+                    </button>
+                </div>
+
+                <div id="student-tab-content"></div>
+            `;
+            window.switchStudentTab(appState.activeTab);
+        }
+
+        window.switchStudentTab = function(tab) {
+            appState.activeTab = tab;
+            document.querySelectorAll('.student-nav-tab').forEach(btn => {
+                btn.className = "student-nav-tab py-3 px-4 font-semibold text-xs sm:text-sm rounded-t-xl transition flex items-center gap-2 whitespace-nowrap text-slate-500 hover:text-navy-800 hover:bg-slate-100";
+            });
+
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if (activeBtn) {
+                activeBtn.className = "student-nav-tab py-3 px-4 font-bold text-xs sm:text-sm rounded-t-xl transition flex items-center gap-2 whitespace-nowrap bg-navy-800 text-amber-400 shadow-sm";
+            }
+
+            const contentDiv = document.getElementById('student-tab-content');
+            if (!contentDiv) return;
+
+            if (tab === 'mocks') renderMocksTab(contentDiv);
+            if (tab === 'practice') renderPracticeTab(contentDiv);
+            if (tab === 'vault') renderVaultTab(contentDiv);
+            if (tab === 'flashcards') renderFlashcardsTab(contentDiv);
+        };
+
+        // --- SCHEDULED MOCKS ---
+        function renderMocksTab(container) {
+            const user = appState.currentUser;
+            const myAttempts = appData.studentAttempts.filter(a => a.studentCode === user.code);
+
+            container.innerHTML = `
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2 space-y-4">
+                        <h3 class="text-base font-extrabold text-navy-800 flex items-center gap-2">
+                            <i class="fas fa-tasks text-amber-500"></i> Scheduled Official Mock Exams
+                        </h3>
+
+                        ${appData.mockExams.length === 0 ? `
+                            <div class="bg-white p-8 rounded-2xl text-center border border-slate-200 text-slate-500 text-xs">
+                                No scheduled mock exams created yet by the admin.
+                            </div>
+                        ` : appData.mockExams.map(mock => {
+                            const prevAttempt = myAttempts.find(a => a.mockExamId === mock.id);
+                            return `
+                                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-start gap-2 mb-2">
+                                            <span class="text-[10px] font-bold uppercase bg-navy-800/10 text-navy-800 px-2 py-0.5 rounded">
+                                                ${mock.subject}
+                                            </span>
+                                            <span class="text-xs text-slate-500 font-medium">
+                                                <i class="fas fa-clock text-amber-500"></i> ${mock.durationMins} Mins
+                                            </span>
+                                        </div>
+                                        <h4 class="text-sm font-bold text-slate-900">${mock.title}</h4>
+                                        <p class="text-xs text-slate-500 mt-1">${mock.questions ? mock.questions.length : 0} questions included.</p>
+                                    </div>
+                                    <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                                        <span class="text-xs font-semibold text-slate-500">
+                                            ${prevAttempt ? '<i class="fas fa-check-circle text-emerald-600"></i> Attempted' : 'Status: Ready'}
+                                        </span>
+                                        <button onclick="window.startMockExam('${mock.id}')" class="bg-navy-800 hover:bg-navy-900 text-amber-400 font-bold px-4 py-2 rounded-xl text-xs transition shadow flex items-center gap-1.5">
+                                            <i class="fas fa-play"></i> ${prevAttempt ? 'Re-attempt Mock' : 'Start Exam'}
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-base font-extrabold text-navy-800 flex items-center gap-2">
+                            <i class="fas fa-chart-line text-amber-500"></i> My Score Records
+                        </h3>
+                        ${myAttempts.length === 0 ? `
+                            <div class="bg-white p-6 rounded-2xl text-center border border-slate-200 text-slate-500 text-xs">
+                                No completed mock attempts yet.
+                            </div>
+                        ` : myAttempts.map(att => {
+                            const mock = appData.mockExams.find(m => m.id === att.mockExamId);
+                            const released = mock ? mock.resultsReleased : true;
+                            return `
+                                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                                    <div class="flex justify-between items-start">
+                                        <h5 class="text-xs font-bold text-slate-800 line-clamp-1">${att.mockTitle}</h5>
+                                        <span class="text-[10px] text-slate-400">${att.dateCompleted}</span>
+                                    </div>
+                                    ${released ? `
+                                        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                                            <div>
+                                                <div class="text-[9px] text-slate-500 uppercase font-semibold">Score</div>
+                                                <div class="text-base font-black ${att.score >= 50 ? 'text-emerald-600' : 'text-red-600'}">
+                                                    ${att.score.toFixed(1)}%
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-[9px] text-slate-500">Correct</div>
+                                                <div class="text-xs font-bold text-slate-800">${att.correctCount} / ${att.totalQuestions}</div>
+                                            </div>
+                                        </div>
+                                    ` : `
+                                        <div class="bg-amber-50 border border-amber-200 rounded p-2 text-center text-xs text-amber-800 font-bold">
+                                            <i class="fas fa-lock text-amber-600 mr-1"></i> Scores Pending Release
+                                        </div>
+                                    `}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- CUSTOM PRACTICE ---
+        function renderPracticeTab(container) {
+            const allSubjects = [...new Set(appData.questions.map(q => q.subject))];
+
+            container.innerHTML = `
+                <div class="max-w-3xl mx-auto bg-white rounded-2xl p-6 border border-slate-200 shadow-md space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h3 class="text-base font-extrabold text-navy-800 flex items-center gap-2">
+                            <i class="fas fa-sliders-h text-amber-500"></i> Custom Practice Configuration
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Select subjects, assign specific topics, and define question count limits per subject.</p>
+                    </div>
+
+                    ${allSubjects.length === 0 ? `
+                        <div class="bg-amber-50 border border-amber-200 p-6 rounded-xl text-center text-xs text-amber-900 font-bold">
+                            <i class="fas fa-exclamation-triangle text-amber-600 mr-1"></i> No questions available in the question bank yet. Please log into the Admin portal to upload questions.
+                        </div>
+                    ` : `
+                        <form onsubmit="window.handleStartCustomPractice(event)" class="space-y-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">1. Select Practice Subjects</label>
+                                <div class="flex flex-wrap gap-2" id="subject-pills-container">
+                                    ${allSubjects.map(sub => {
+                                        const isSelected = appState.practiceSelections.subjects.includes(sub);
+                                        return `
+                                            <button type="button" onclick="window.toggleSubjectSelection('${sub}')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${isSelected ? 'bg-navy-800 text-amber-400 border-navy-900 shadow-sm' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200'}">
+                                                <i class="fas ${isSelected ? 'fa-check-square' : 'fa-square'}"></i> ${sub}
+                                            </button>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+
+                            <div id="topics-config-area" class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">2. Topic & Limit Controls per Subject</label>
+                                <div id="topics-per-subject-container" class="space-y-3"></div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Session Timer</label>
+                                    <select id="prac-timer" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 bg-white">
+                                        <option value="10">10 Minutes</option>
+                                        <option value="20" selected>20 Minutes</option>
+                                        <option value="40">40 Minutes</option>
+                                        <option value="60">60 Minutes</option>
+                                        <option value="0">Untimed Practice</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-3.5 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                                <i class="fas fa-play-circle"></i> Generate Custom Practice Session
+                            </button>
+                        </form>
+                    `}
+                </div>
+            `;
+            if (allSubjects.length > 0) renderSubjectTopicConfigs();
+        }
+
+        window.toggleSubjectSelection = function(sub) {
+            const idx = appState.practiceSelections.subjects.indexOf(sub);
+            if (idx > -1) {
+                if (appState.practiceSelections.subjects.length === 1) {
+                    window.showToast('Select at least one subject for practice.', 'warning');
+                    return;
+                }
+                appState.practiceSelections.subjects.splice(idx, 1);
+                delete appState.practiceSelections.subjectTopics[sub];
+            } else {
+                appState.practiceSelections.subjects.push(sub);
+                appState.practiceSelections.subjectTopics[sub] = { topic: 'ALL', limit: 'ALL' };
+            }
+
+            renderPracticeTab(document.getElementById('student-tab-content'));
+        };
+
+        function renderSubjectTopicConfigs() {
+            const container = document.getElementById('topics-per-subject-container');
+            if (!container) return;
+
+            container.innerHTML = appState.practiceSelections.subjects.map(sub => {
+                const subTopics = [...new Set(appData.questions.filter(q => q.subject.toLowerCase() === sub.toLowerCase()).map(q => q.topic))];
+                const config = appState.practiceSelections.subjectTopics[sub] || { topic: 'ALL', limit: 'ALL' };
+
+                return `
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <span class="text-xs font-bold text-navy-800 flex items-center gap-1.5 md:w-1/3">
+                            <i class="fas fa-book text-amber-500"></i> ${sub}
+                        </span>
+                        
+                        <div class="flex flex-col sm:flex-row items-center gap-2 md:w-2/3">
+                            <select onchange="window.updateSubjectTopicChoice('${sub}', 'topic', this.value)" class="w-full sm:w-1/2 px-3 py-2 rounded-lg border border-slate-300 text-xs font-medium text-slate-800 bg-slate-50">
+                                <option value="ALL" ${config.topic === 'ALL' ? 'selected' : ''}>All Topics (${subTopics.length})</option>
+                                ${subTopics.map(t => `<option value="${t}" ${config.topic === t ? 'selected' : ''}>${t}</option>`).join('')}
+                            </select>
+
+                            <select onchange="window.updateSubjectTopicChoice('${sub}', 'limit', this.value)" class="w-full sm:w-1/2 px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 bg-slate-50">
+                                <option value="ALL" ${config.limit === 'ALL' ? 'selected' : ''}>All Available Questions</option>
+                                <option value="10" ${config.limit === '10' ? 'selected' : ''}>Max 10 Questions</option>
+                                <option value="20" ${config.limit === '20' ? 'selected' : ''}>Max 20 Questions</option>
+                                <option value="40" ${config.limit === '40' ? 'selected' : ''}>Max 40 Questions</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.updateSubjectTopicChoice = function(subject, key, value) {
+            if (!appState.practiceSelections.subjectTopics[subject]) {
+                appState.practiceSelections.subjectTopics[subject] = { topic: 'ALL', limit: 'ALL' };
+            }
+            appState.practiceSelections.subjectTopics[subject][key] = value;
+        };
+
+        window.handleStartCustomPractice = function(e) {
+            e.preventDefault();
+            const timerMins = parseInt(document.getElementById('prac-timer').value);
+            let compiledPool = [];
+
+            appState.practiceSelections.subjects.forEach(sub => {
+                const config = appState.practiceSelections.subjectTopics[sub] || { topic: 'ALL', limit: 'ALL' };
+                let subQuestions = appData.questions.filter(q => q.subject.toLowerCase() === sub.toLowerCase());
+                
+                if (config.topic && config.topic !== 'ALL') {
+                    subQuestions = subQuestions.filter(q => q.topic.toLowerCase() === config.topic.toLowerCase());
+                }
+
+                subQuestions = subQuestions.sort(() => 0.5 - Math.random());
+
+                if (config.limit && config.limit !== 'ALL') {
+                    subQuestions = subQuestions.slice(0, parseInt(config.limit));
+                }
+
+                compiledPool.push(...subQuestions);
+            });
+
+            if (compiledPool.length === 0) {
+                window.showToast('No questions found for the selected configurations.', 'warning');
+                return;
+            }
+
+            appState.activeQuiz = {
+                title: `Custom Practice (${appState.practiceSelections.subjects.join(', ')})`,
+                subject: appState.practiceSelections.subjects.join(', '),
+                isMock: false,
+                questions: compiledPool,
+                durationMins: timerMins,
+                answers: {},
+                startTime: Date.now()
+            };
+
+            appState.activeExamSubjectFilter = 'ALL';
+            window.navigateTo('exam-session');
+        };
+
+        // --- QUESTION VAULT ---
+        function renderVaultTab(container) {
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <h3 class="text-base font-extrabold text-navy-800 mb-2 flex items-center gap-2">
+                            <i class="fas fa-database text-amber-500"></i> Search All Questions
+                        </h3>
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-4 top-3 text-slate-400"></i>
+                            <input type="text" id="vault-search-input" onkeyup="window.filterVaultQuestions()" placeholder="Search topic or question text..." class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 font-medium text-xs sm:text-sm text-slate-800 bg-slate-50">
+                        </div>
+                    </div>
+                    <div id="vault-results-container" class="space-y-4"></div>
+                </div>
+            `;
+            window.filterVaultQuestions();
+        }
+
+        window.filterVaultQuestions = function() {
+            const input = document.getElementById('vault-search-input');
+            const query = input ? input.value.toLowerCase().trim() : '';
+            const container = document.getElementById('vault-results-container');
+            if (!container) return;
+
+            let filtered = appData.questions;
+            if (query) {
+                filtered = appData.questions.filter(q => 
+                    q.topic.toLowerCase().includes(query) || 
+                    q.subject.toLowerCase().includes(query) ||
+                    q.question.toLowerCase().includes(query)
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center border border-slate-200 text-slate-500 text-xs">No questions found in the question bank.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map((q, idx) => `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                        <span class="text-[10px] font-extrabold uppercase bg-navy-800 text-amber-400 px-2 py-0.5 rounded">${q.subject} - ${q.topic}</span>
+                        <span class="text-xs text-slate-400 font-mono">Q#${idx + 1}</span>
+                    </div>
+                    <div class="text-xs sm:text-sm font-bold text-slate-800">${q.question}</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        ${q.options.map((opt, oIdx) => `
+                            <div class="text-xs p-2 rounded-lg border ${oIdx === q.correctAnswer ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold' : 'bg-slate-50 border-slate-200'}">
+                                ${String.fromCharCode(65 + oIdx)}. ${opt}${oIdx === q.correctAnswer ? '✓' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${q.explanation ? `<div class="bg-amber-50/70 p-2.5 rounded-xl border border-amber-200 text-xs text-amber-950"><strong>Explanation:</strong> ${q.explanation}</div>` : ''}
+                </div>
+            `).join('');
+        };
+
+        // --- FLASHCARD HUB ---
+        function renderFlashcardsTab(container) {
+            const subjects = ['All Subjects', ...new Set(appData.flashcards.map(f => f.subject))];
+
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200">
+                        <div>
+                            <h3 class="text-base font-extrabold text-navy-800">
+                                <i class="fas fa-clone text-amber-500 mr-1"></i> Interactive Flashcard Decks
+                            </h3>
+                            <p class="text-xs text-slate-500">Tap card to flip between formula/concept and full explanation.</p>
+                        </div>
+                        <select id="flashcard-subject-filter" onchange="window.renderFlashcardList()" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 bg-slate-50">
+                            ${subjects.map(s => `<option value="${s}">${s}</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <div id="flashcard-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+                </div>
+            `;
+            window.renderFlashcardList();
+        }
+
+        window.renderFlashcardList = function() {
+            const filter = document.getElementById('flashcard-subject-filter')?.value || 'All Subjects';
+            const grid = document.getElementById('flashcard-grid');
+            if (!grid) return;
+
+            let cards = appData.flashcards;
+            if (filter !== 'All Subjects') cards = cards.filter(f => f.subject === filter);
+
+            if (cards.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 bg-white p-8 rounded-2xl text-center border border-slate-200 text-slate-500 text-xs">No flashcards available yet. Add them via Admin Portal.</div>`;
+                return;
+            }
+
+            grid.innerHTML = cards.map(card => `
+                <div class="group h-72 perspective-1000 cursor-pointer w-full" onclick="window.flipCard(this)">
+                    <div class="flashcard-inner relative w-full h-full duration-500 transform-style-3d shadow-md rounded-2xl">
+                        <div class="absolute w-full h-full backface-hidden bg-white border-2 border-slate-200 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-400 transition">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-extrabold uppercase bg-navy-800 text-amber-400 px-2.5 py-1 rounded">
+                                    ${card.subject}
+                                </span>
+                                <span class="text-[10px] font-bold text-slate-400"><i class="fas fa-sync-alt mr-1"></i> Tap to Flip</span>
+                            </div>
+                            <div class="text-center my-auto px-4">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">${card.topic}</span>
+                                <h4 class="text-lg sm:text-xl font-extrabold text-navy-800">${card.concept}</h4>
+                            </div>
+                            <div class="text-[11px] text-slate-400 text-center font-medium">MOT Academic Flashcards</div>
+                        </div>
+
+                        <div class="absolute w-full h-full backface-hidden rotate-y-180 bg-navy-800 text-white rounded-2xl p-6 flex flex-col justify-between border-2 border-amber-400">
+                            <div class="flex justify-between items-center text-amber-400 border-b border-slate-700 pb-2">
+                                <span class="text-xs font-bold truncate">${card.concept}</span>
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-200 my-auto leading-relaxed overflow-y-auto max-h-40 pr-1">
+                                ${card.explanation}
+                            </p>
+                            <div class="text-[10px] text-amber-400/80 text-center uppercase font-bold tracking-wider">Concept Key Explanation</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.flipCard = function(cardElem) {
+            const inner = cardElem.querySelector('.flashcard-inner');
+            if (inner) inner.classList.toggle('rotate-y-180');
+        };
+
+        // =========================================================================
+        // ACTIVE EXAM / PRACTICE SESSION ENGINE
+        // =========================================================================
+        window.startMockExam = function(mockId) {
+            const mock = appData.mockExams.find(m => m.id === mockId);
+            if (!mock) return;
+
+            const questions = (mock.questions || []).map(qId => appData.questions.find(q => q.id === qId)).filter(Boolean);
+            if (questions.length === 0) return window.showToast('Mock exam has no questions.', 'warning');
+
+            appState.activeQuiz = {
+                mockId: mock.id,
+                title: mock.title,
+                subject: mock.subject,
+                isMock: true,
+                questions: questions,
+                durationMins: mock.durationMins,
+                answers: {},
+                startTime: Date.now()
+            };
+
+            appState.activeExamSubjectFilter = 'ALL';
+            window.navigateTo('exam-session');
+        };
+
+        function renderExamSessionView(container) {
+            const quiz = appState.activeQuiz;
+            if (!quiz) { window.navigateTo('dashboard'); return; }
+
+            const examSubjects = [...new Set(quiz.questions.map(q => q.subject))];
+            if (!appState.activeExamSubjectFilter) appState.activeExamSubjectFilter = 'ALL';
+
+            let visibleQuestions = quiz.questions;
+            if (appState.activeExamSubjectFilter !== 'ALL') {
+                visibleQuestions = quiz.questions.filter(q => q.subject === appState.activeExamSubjectFilter);
+            }
+
+            const currentSubIdx = examSubjects.indexOf(appState.activeExamSubjectFilter);
+            const nextSubjectName = (currentSubIdx !== -1 && currentSubIdx + 1 < examSubjects.length) ? examSubjects[currentSubIdx + 1] : null;
+
+            container.innerHTML = `
+                <div class="max-w-4xl mx-auto space-y-5">
+                    <div class="bg-navy-800 text-white p-4 rounded-2xl shadow-lg flex flex-wrap justify-between items-center gap-4 sticky top-16 z-30 border border-slate-700">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-amber-400 tracking-wider block">
+                                ${quiz.isMock ? 'OFFICIAL STANDALONE MOCK EXAM' : 'CUSTOM PRACTICE SESSION'}
+                            </span>
+                            <h2 class="text-base sm:text-lg font-bold text-white">${quiz.title}</h2>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <button onclick="window.toggleCalculator()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow">
+                                <i class="fas fa-calculator"></i> Calculator
+                            </button>
+
+                            ${quiz.durationMins > 0 ? `
+                                <div class="bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-700 text-right">
+                                    <div class="text-[8px] uppercase font-bold text-slate-400">Time Remaining</div>
+                                    <div id="quiz-timer-display" class="text-base font-mono font-bold text-amber-400">00:00</div>
+                                </div>
+                            ` : ''}
+
+                            <button onclick="window.confirmSubmitQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow flex items-center gap-1.5">
+                                <i class="fas fa-paper-plane"></i> Submit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-2 overflow-x-auto">
+                        <span class="text-xs font-extrabold text-navy-800 uppercase px-2 shrink-0">
+                            <i class="fas fa-filter text-amber-500 mr-1"></i> Subjects:
+                        </span>
+                        
+                        <button onclick="window.switchExamSubjectFilter('ALL')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap border ${appState.activeExamSubjectFilter === 'ALL' ? 'bg-navy-800 text-amber-400 border-navy-900 shadow' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-200'}">
+                            ALL QUESTIONS (${quiz.questions.length})
+                        </button>
+
+                        ${examSubjects.map(sub => {
+                            const subQCount = quiz.questions.filter(q => q.subject === sub).length;
+                            const isSelected = appState.activeExamSubjectFilter === sub;
+                            return `
+                                <button onclick="window.switchExamSubjectFilter('${sub}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap border ${isSelected ? 'bg-navy-800 text-amber-400 border-navy-900 shadow' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200'}">
+                                    ${sub} (${subQCount})
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <div class="space-y-6">
+                        ${visibleQuestions.map((q) => {
+                            const originalIdx = quiz.questions.findIndex(orig => orig.id === q.id);
+                            return `
+                                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                                        <span class="text-xs font-bold text-navy-800 bg-slate-100 px-3 py-1 rounded-full">
+                                            Q${originalIdx + 1} of ${quiz.questions.length} &bull; ${q.subject}
+                                        </span>
+                                        <span class="text-xs text-slate-500 font-medium">${q.topic || 'General'}</span>
+                                    </div>
+
+                                    <div class="text-sm font-bold text-slate-900 leading-relaxed">${q.question}</div>
+
+                                    <div class="grid grid-cols-1 gap-2.5 pt-2" id="options-group-${q.id}">
+                                        ${q.options.map((opt, oIdx) => {
+                                            const selected = quiz.answers[q.id] === oIdx;
+                                            return `
+                                                <button type="button" onclick="window.selectAnswer('${q.id}', ${oIdx}, this)" class="option-btn-${q.id} w-full text-left p-3 rounded-xl border transition flex items-start gap-3 ${selected ? 'bg-amber-500 text-slate-950 font-bold border-amber-600 shadow' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800 font-medium'}">
+                                                    <span class="w-6 h-6 rounded-full ${selected ? 'bg-slate-950 text-amber-400' : 'bg-slate-200 text-slate-700'} text-xs font-bold flex items-center justify-center shrink-0">
+                                                        ${String.fromCharCode(65 + oIdx)}
+                                                    </span>
+                                                    <span class="text-xs sm:text-sm mt-0.5">${opt}</span>
+                                                </button>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <span class="text-xs text-slate-500 font-medium">Viewing ${visibleQuestions.length} questions in <strong>${appState.activeExamSubjectFilter}</strong></span>
+                        
+                        <div class="flex items-center gap-3">
+                            ${nextSubjectName ? `
+                                <button onclick="window.switchExamSubjectFilter('${nextSubjectName}')" class="bg-navy-800 hover:bg-navy-900 text-amber-400 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow flex items-center gap-2">
+                                    <span>Next Subject (${nextSubjectName})</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            ` : `
+                                <button onclick="window.confirmSubmitQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-6 py-2.5 rounded-xl text-xs transition shadow flex items-center gap-2">
+                                    <span>Finalize & Submit Exam</span>
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            startQuizTimer();
+        }
+
+        window.switchExamSubjectFilter = function(subject) {
+            appState.activeExamSubjectFilter = subject;
+            renderExamSessionView(document.getElementById('view-container'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        function startQuizTimer() {
+            if (appState.quizTimer) clearInterval(appState.quizTimer);
+            const quiz = appState.activeQuiz;
+            if (!quiz || quiz.durationMins <= 0) return;
+
+            const totalDurationSecs = quiz.durationMins * 60;
+
+            appState.quizTimer = setInterval(() => {
+                const elapsedSecs = Math.floor((Date.now() - quiz.startTime) / 1000);
+                const remainingSecs = totalDurationSecs - elapsedSecs;
+
+                const timerDisplay = document.getElementById('quiz-timer-display');
+                if (timerDisplay) {
+                    if (remainingSecs >= 0) {
+                        const mins = Math.floor(remainingSecs / 60);
+                        const secs = remainingSecs % 60;
+                        timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    }
+                }
+
+                if (remainingSecs <= 0) {
+                    clearInterval(appState.quizTimer);
+                    window.showToast('Time expired! Submitting exam.', 'warning');
+                    processQuizSubmission();
+                }
+            }, 1000);
+        }
+
+        window.selectAnswer = function(questionId, optionIndex, btnElem) {
+            if (!appState.activeQuiz) return;
+            appState.activeQuiz.answers[questionId] = optionIndex;
+
+            const parentGroup = document.getElementById(`options-group-${questionId}`);
+            if (!parentGroup) return;
+
+            const allBtns = parentGroup.querySelectorAll(`.option-btn-${questionId}`);
+            allBtns.forEach((btn, idx) => {
+                const badge = btn.querySelector('span');
+                if (idx === optionIndex) {
+                    btn.className = `option-btn-${questionId} w-full text-left p-3 rounded-xl border transition flex items-start gap-3 bg-amber-500 text-slate-950 font-bold border-amber-600 shadow`;
+                    if (badge) badge.className = "w-6 h-6 rounded-full bg-slate-950 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0";
+                } else {
+                    btn.className = `option-btn-${questionId} w-full text-left p-3 rounded-xl border transition flex items-start gap-3 bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800 font-medium`;
+                    if (badge) badge.className = "w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0";
+                }
+            });
+        };
+
+        window.confirmSubmitQuiz = function() {
+            if (confirm("Submit your responses now?")) {
+                processQuizSubmission();
+            }
+        };
+
+        function processQuizSubmission() {
+            if (appState.quizTimer) clearInterval(appState.quizTimer);
+            const quiz = appState.activeQuiz;
+            if (!quiz) return;
+
+            let correctCount = 0;
+            quiz.questions.forEach(q => {
+                if (quiz.answers[q.id] === q.correctAnswer) correctCount++;
+            });
+
+            const total = quiz.questions.length;
+            const percentage = total > 0 ? (correctCount / total) * 100 : 0;
+
+            if (quiz.isMock && appState.currentUser) {
+                const attemptId = 'att_' + Date.now();
+                const attemptData = {
+                    studentCode: appState.currentUser.code,
+                    studentName: appState.currentUser.name,
+                    mockExamId: quiz.mockId,
+                    mockTitle: quiz.title,
+                    score: percentage,
+                    correctCount: correctCount,
+                    totalQuestions: total,
+                    dateCompleted: new Date().toISOString().split('T')[0]
+                };
+                window.saveFirestoreDoc('studentAttempts', attemptId, attemptData);
+                window.showToast(`Mock Submitted! Score: ${percentage.toFixed(1)}%`, 'success');
+                appState.activeQuiz = null;
+                window.navigateTo('dashboard', 'mocks');
+            } else {
+                renderPracticeResultReport(quiz, correctCount, total, percentage);
+            }
+        }
+
+        function renderPracticeResultReport(quiz, correct, total, percentage) {
+            window.toggleCalculator(false);
+            const container = document.getElementById('view-container');
+
+            container.innerHTML = `
+                <div class="max-w-3xl mx-auto bg-white rounded-2xl p-6 border border-slate-200 shadow-xl space-y-6">
+                    <div class="bg-navy-800 text-white p-6 rounded-xl text-center space-y-2">
+                        <span class="text-xs uppercase font-extrabold text-amber-400 tracking-wider">Custom Practice Score Summary</span>
+                        <h2 class="text-3xl font-black ${percentage >= 50 ? 'text-emerald-400' : 'text-red-400'}">${percentage.toFixed(1)}%</h2>
+                        <p class="text-xs text-slate-300">You scored ${correct} correct out of ${total} questions.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-extrabold text-navy-800 border-b border-slate-200 pb-2">
+                            Detailed Solutions & Explanations
+                        </h3>
+
+                        ${quiz.questions.map((q, idx) => {
+                            const studentAns = quiz.answers[q.id];
+                            const isCorrect = studentAns === q.correctAnswer;
+                            return `
+                                <div class="p-4 rounded-xl border ${isCorrect ? 'bg-emerald-50/50 border-emerald-200' : 'bg-red-50/50 border-red-200'} space-y-2">
+                                    <div class="flex justify-between items-center text-xs font-bold">
+                                        <span class="${isCorrect ? 'text-emerald-800' : 'text-red-800'}">
+                                            Q${idx + 1}. [${q.subject}] ${q.topic} - ${isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs sm:text-sm font-bold text-slate-900">${q.question}</p>
+                                    
+                                    <div class="text-xs space-y-1 pt-1">
+                                        <div>Your Answer: <strong>${studentAns !== undefined ? q.options[studentAns] : 'Not Answered'}</strong></div>
+                                        <div>Correct Answer: <strong class="text-emerald-700">${q.options[q.correctAnswer]}</strong></div>
+                                    </div>
+
+                                    ${q.explanation ? `
+                                        <div class="bg-white p-2.5 rounded-lg border border-slate-200 text-xs text-slate-700 mt-2">
+                                            <strong>Explanation:</strong> ${q.explanation}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <button onclick="window.navigateTo('dashboard', 'practice')" class="w-full bg-navy-800 hover:bg-navy-900 text-amber-400 font-bold py-3 rounded-xl text-xs transition">
+                        Back to Practice Generator
+                    </button>
+                </div>
+            `;
+            appState.activeQuiz = null;
+        }
+
+        // =========================================================================
+        // ADMIN DASHBOARD
+        // =========================================================================
+        function renderAdminDashboard(container) {
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-navy-800 text-white p-6 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <span class="text-xs uppercase font-extrabold text-amber-400 tracking-wider">Control Center</span>
+                            <h1 class="text-2xl font-black">MOT Academic Admin Portal</h1>
+                            <p class="text-xs text-slate-300 mt-0.5">Standalone Mock exam creator, bulk JSON uploads, codes, and score releases.</p>
+                        </div>
+                        <button onclick="window.navigateTo('dashboard')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition">
+                            <i class="fas fa-eye mr-1"></i> Student View
+                        </button>
+                    </div>
+
+                    <div class="flex border-b border-slate-200 space-x-2 overflow-x-auto pb-1">
+                        <button onclick="window.switchAdminTab('alerts')" id="atab-alerts" class="admin-tab-btn py-2.5 px-4 font-bold text-xs rounded-t-xl transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fas fa-exclamation-triangle text-amber-500"></i> Performance & Alerts
+                        </button>
+                        <button onclick="window.switchAdminTab('codes')" id="atab-codes" class="admin-tab-btn py-2.5 px-4 font-bold text-xs rounded-t-xl transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fas fa-key"></i> Access Codes
+                        </button>
+                        <button onclick="window.switchAdminTab('mocks')" id="atab-mocks" class="admin-tab-btn py-2.5 px-4 font-bold text-xs rounded-t-xl transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fas fa-file-alt"></i> Standalone Mock Exam Creator
+                        </button>
+                        <button onclick="window.switchAdminTab('upload')" id="atab-upload" class="admin-tab-btn py-2.5 px-4 font-bold text-xs rounded-t-xl transition flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fas fa-upload"></i> Question & Flashcard Vault
+                        </button>
+                    </div>
+
+                    <div id="admin-tab-content"></div>
+                </div>
+            `;
+            window.switchAdminTab('alerts');
+        }
+
+        window.switchAdminTab = function(tab) {
+            document.querySelectorAll('.admin-tab-btn').forEach(b => {
+                b.className = "admin-tab-btn py-2.5 px-4 font-semibold text-xs rounded-t-xl transition flex items-center gap-1.5 whitespace-nowrap text-slate-500 hover:text-navy-800 hover:bg-slate-100";
+            });
+
+            const activeBtn = document.getElementById(`atab-${tab}`);
+            if (activeBtn) activeBtn.className = "admin-tab-btn py-2.5 px-4 font-bold text-xs rounded-t-xl transition flex items-center gap-1.5 whitespace-nowrap bg-navy-800 text-amber-400 shadow-sm";
+
+            const content = document.getElementById('admin-tab-content');
+            if (!content) return;
+
+            if (tab === 'alerts') renderAdminAlertsTab(content);
+            if (tab === 'codes') renderAdminCodesTab(content);
+            if (tab === 'mocks') renderAdminMocksTab(content);
+            if (tab === 'upload') renderAdminUploadTab(content);
+        };
+
+        function renderAdminAlertsTab(container) {
+            const lowScores = appData.studentAttempts.filter(a => a.score < 50);
+
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="text-xs text-slate-500 font-semibold uppercase">Total Attempts</div>
+                            <div class="text-2xl font-black text-navy-800 mt-1">${appData.studentAttempts.length}</div>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-2xl border border-red-200 shadow-sm">
+                            <div class="text-xs text-red-700 font-bold uppercase">Low Score Warnings (&lt;50%)</div>
+                            <div class="text-2xl font-black text-red-700 mt-1">${lowScores.length}</div>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 shadow-sm">
+                            <div class="text-xs text-emerald-700 font-bold uppercase">Pass Rate (&ge;50%)</div>
+                            <div class="text-2xl font-black text-emerald-700 mt-1">
+                                ${appData.studentAttempts.length > 0 ? (((appData.studentAttempts.length - lowScores.length) / appData.studentAttempts.length) * 100).toFixed(0) : 0}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-4 border-b border-slate-100 font-bold text-slate-800 text-xs sm:text-sm">
+                            Student Mock Exam Performance Logs
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
+                                        <th class="p-3">Student Name</th>
+                                        <th class="p-3">Code</th>
+                                        <th class="p-3">Mock Exam Title</th>
+                                        <th class="p-3">Score</th>
+                                        <th class="p-3">Academic Status</th>
+                                        <th class="p-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${appData.studentAttempts.length === 0 ? `
+                                        <tr><td colspan="6" class="p-6 text-center text-slate-500">No student attempts recorded yet.</td></tr>
+                                    ` : appData.studentAttempts.map(att => `
+                                        <tr class="${att.score < 50 ? 'bg-red-50/60' : 'hover:bg-slate-50'}">
+                                            <td class="p-3 font-bold text-slate-900">${att.studentName}</td>
+                                            <td class="p-3 font-mono font-bold text-slate-600">${att.studentCode}</td>
+                                            <td class="p-3 font-medium text-slate-700">${att.mockTitle}</td>
+                                            <td class="p-3 font-black text-sm ${att.score < 50 ? 'text-red-700' : 'text-emerald-600'}">${att.score.toFixed(1)}%</td>
+                                            <td class="p-3">
+                                                ${att.score < 50 ? `
+                                                    <span class="bg-red-600 text-white font-extrabold text-[10px] px-2.5 py-1 rounded-full">Warning &lt; 50%</span>
+                                                ` : `<span class="bg-emerald-100 text-emerald-800 font-bold text-[10px] px-2 py-0.5 rounded">Good Standing</span>`}
+                                            </td>
+                                            <td class="p-3 text-right">
+                                                <button onclick="window.deleteStudentAttempt('${att.id}')" class="text-red-600 hover:text-red-800 font-bold"><i class="fas fa-trash-alt"></i></button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.deleteStudentAttempt = function(attId) {
+            if (confirm("Delete this student attempt record?")) {
+                window.deleteFirestoreDoc('studentAttempts', attId);
+                window.showToast('Student score record deleted', 'info');
+                renderAdminAlertsTab(document.getElementById('admin-tab-content'));
+            }
+        };
+
+        function renderAdminCodesTab(container) {
+            container.innerHTML = `
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="text-xs font-extrabold text-navy-800">Add Student Access Code</h3>
+                        <form onsubmit="window.handleAddAccessCode(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 uppercase">Student Name</label>
+                                <input type="text" id="new-student-name" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 uppercase">Custom Code</label>
+                                <input type="text" id="new-student-code" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-mono font-bold uppercase bg-slate-50">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 uppercase">Category</label>
+                                <select id="new-student-dept" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50">
+                                    <option value="Science">Science</option>
+                                    <option value="Commercial">Commercial</option>
+                                    <option value="Arts">Arts</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-navy-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs">Create Code</button>
+                        </form>
+                    </div>
+
+                    <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-4 border-b border-slate-100 font-bold text-xs text-slate-800">Active Access Codes (${appData.accessCodes.length})</div>
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
+                                    <th class="p-3">Code</th>
+                                    <th class="p-3">Student Name</th>
+                                    <th class="p-3">Department</th>
+                                    <th class="p-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                ${appData.accessCodes.length === 0 ? `
+                                    <tr><td colspan="4" class="p-6 text-center text-slate-500">No student access codes created yet. Add one on the left.</td></tr>
+                                ` : appData.accessCodes.map(c => `
+                                    <tr>
+                                        <td class="p-3 font-mono font-extrabold text-navy-800">${c.code}</td>
+                                        <td class="p-3 font-bold text-slate-800">${c.studentName}</td>
+                                        <td class="p-3">${c.targetSubject}</td>
+                                        <td class="p-3 text-right space-x-2">
+                                            <button onclick="window.openEditCodeModal('${c.id}')" class="text-amber-600 font-bold"><i class="fas fa-edit"></i></button>
+                                            <button onclick="window.removeAccessCode('${c.id}')" class="text-red-600 font-bold"><i class="fas fa-trash-alt"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.handleAddAccessCode = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-student-name').value.trim();
+            const code = document.getElementById('new-student-code').value.trim().toUpperCase();
+            const dept = document.getElementById('new-student-dept').value;
+
+            if (appData.accessCodes.some(c => c.code.toUpperCase() === code)) return window.showToast('Code exists', 'warning');
+
+            const id = 'code_' + Date.now();
+            window.saveFirestoreDoc('accessCodes', id, { code, studentName: name, targetSubject: dept });
+            window.showToast(`Code ${code} added`, 'success');
+            renderAdminCodesTab(document.getElementById('admin-tab-content'));
+        };
+
+        window.removeAccessCode = function(id) {
+            if (confirm("Delete code?")) {
+                window.deleteFirestoreDoc('accessCodes', id);
+                renderAdminCodesTab(document.getElementById('admin-tab-content'));
+            }
+        };
+
+        window.openEditCodeModal = function(id) {
+            const codeObj = appData.accessCodes.find(c => c.id === id);
+            if (!codeObj) return;
+
+            const modal = document.getElementById('modal-container');
+            const box = document.getElementById('modal-content-box');
+            modal.classList.remove('hidden');
+
+            box.innerHTML = `
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-sm font-bold text-navy-800">Edit Access Code</h3>
+                    <button onclick="window.closeModal()" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times"></i></button>
+                </div>
+                <form onsubmit="window.handleSaveEditCode(event, '${id}')" class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase">Student Name</label>
+                        <input type="text" id="edit-code-name" value="${codeObj.studentName}" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase">Custom Code</label>
+                        <input type="text" id="edit-code-code" value="${codeObj.code}" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-mono font-bold uppercase bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase">Category</label>
+                        <select id="edit-code-dept" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50">
+                            <option value="Science" ${codeObj.targetSubject === 'Science' ? 'selected' : ''}>Science</option>
+                            <option value="Commercial" ${codeObj.targetSubject === 'Commercial' ? 'selected' : ''}>Commercial</option>
+                            <option value="Arts" ${codeObj.targetSubject === 'Arts' ? 'selected' : ''}>Arts</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-navy-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs">Update Code</button>
+                </form>
+            `;
+        };
+
+        window.handleSaveEditCode = function(e, id) {
+            e.preventDefault();
+            const studentName = document.getElementById('edit-code-name').value.trim();
+            const code = document.getElementById('edit-code-code').value.trim().toUpperCase();
+            const targetSubject = document.getElementById('edit-code-dept').value;
+
+            window.saveFirestoreDoc('accessCodes', id, { code, studentName, targetSubject });
+            window.closeModal();
+            window.showToast('Access code updated successfully', 'success');
+            renderAdminCodesTab(document.getElementById('admin-tab-content'));
+        };
+
+        // --- ADMIN STANDALONE MOCK EXAM CREATOR ---
+        function renderAdminMocksTab(container) {
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="text-xs font-extrabold text-navy-800 flex items-center gap-2">
+                            <i class="fas fa-plus-circle text-amber-500"></i> Step 1: Create Standalone Mock Session
+                        </h3>
+
+                        <form onsubmit="window.handleCreateMockExam(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-slate-600 uppercase">Mock Exam Title</label>
+                                <input type="text" id="mock-title-input" placeholder="e.g. MOT Standard Full Mock 2026" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 uppercase">Category / Subject Tag</label>
+                                <input type="text" id="mock-subject-input" placeholder="e.g. Science / UTME General" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 uppercase">Duration (Minutes)</label>
+                                <input type="number" id="mock-duration-input" value="30" min="5" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold text-navy-800 bg-slate-50">
+                            </div>
+
+                            <div class="sm:col-span-4 flex justify-end">
+                                <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition">
+                                    Create Empty Mock Session
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+                        <h3 class="text-xs font-extrabold text-navy-800 flex items-center gap-2">
+                            <i class="fas fa-tasks text-amber-500"></i> Step 2: Manage & Add/Edit Questions in Mock Exams
+                        </h3>
+
+                        ${appData.mockExams.length === 0 ? `
+                            <div class="bg-slate-50 p-6 rounded-xl text-center text-xs text-slate-500">
+                                No mock sessions created yet. Create a session above first.
+                            </div>
+                        ` : `
+                            <div class="space-y-4">
+                                ${appData.mockExams.map(m => {
+                                    const mockQuestions = (m.questions || []).map(qId => appData.questions.find(q => q.id === qId)).filter(Boolean);
+                                    return `
+                                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 pb-3">
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-sm font-black text-navy-800">${m.title}</span>
+                                                    <span class="text-[10px] font-bold bg-navy-800 text-amber-400 px-2 py-0.5 rounded">${m.subject}</span>
+                                                </div>
+                                                <div class="text-[11px] text-slate-500 mt-0.5">${mockQuestions.length} Questions Attached &bull; ${m.durationMins} Mins Timer</div>
+                                            </div>
+
+                                            <div class="flex items-center gap-2">
+                                                <button onclick="window.openEditMockModal('${m.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-600 transition flex items-center gap-1">
+                                                    <i class="fas fa-edit"></i> Edit Session
+                                                </button>
+                                                <button onclick="window.toggleMockUploaderForm('${m.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-navy-800 text-amber-400 hover:bg-navy-900 transition flex items-center gap-1">
+                                                    <i class="fas fa-plus"></i> Add Questions
+                                                </button>
+                                                <button onclick="window.toggleScoreRelease('${m.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${m.resultsReleased ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white'}">
+                                                    ${m.resultsReleased ? 'Lock Scores' : 'Release Scores'}
+                                                </button>
+                                                <button onclick="window.deleteMockExam('${m.id}')" class="text-red-600 font-bold text-xs p-1.5"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                        </div>
+
+                                        ${mockQuestions.length > 0 ? `
+                                            <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                                                <div class="text-[10px] font-extrabold uppercase text-navy-800 border-b border-slate-100 pb-1">Questions Attached to this Mock:</div>
+                                                <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+                                                    ${mockQuestions.map((mq, qIdx) => `
+                                                        <div class="flex justify-between items-center text-xs bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                                            <div class="truncate mr-2">
+                                                                <span class="font-bold text-navy-800">Q${qIdx + 1}. [${mq.subject}]</span> ${mq.question}
+                                                            </div>
+                                                            <div class="flex items-center gap-2 shrink-0">
+                                                                <button onclick="window.openEditQuestionModal('${mq.id}')" class="text-amber-600 font-bold text-xs"><i class="fas fa-edit"></i> Edit</button>
+                                                                <button onclick="window.deleteQuestionFromMock('${m.id}', '${mq.id}')" class="text-red-600 font-bold text-xs"><i class="fas fa-trash"></i> Delete</button>
+                                                            </div>
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        ` : ''}
+
+                                        <div id="mock-upload-panel-${m.id}" class="hidden bg-white p-4 rounded-xl border border-slate-200 space-y-4">
+                                            <div class="flex border-b border-slate-100 pb-2 justify-between items-center">
+                                                <span class="text-xs font-extrabold text-navy-800">Upload to: ${m.title}</span>
+                                                <div class="flex gap-2">
+                                                    <button onclick="window.setMockUploadMode('${m.id}', 'single')" id="mock-btn-single-${m.id}" class="px-2.5 py-1 rounded text-[10px] font-bold bg-navy-800 text-amber-400">1-by-1 Single</button>
+                                                    <button onclick="window.setMockUploadMode('${m.id}', 'json')" id="mock-btn-json-${m.id}" class="px-2.5 py-1 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Bulk JSON</button>
+                                                </div>
+                                            </div>
+
+                                            <form id="form-mock-single-${m.id}" onsubmit="window.handleMockUploadSingle(event, '${m.id}')" class="space-y-3">
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <input type="text" id="mq-subject-${m.id}" placeholder="Subject (e.g. Biology)" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                                    <input type="text" id="mq-topic-${m.id}" placeholder="Topic Tag" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                                </div>
+                                                <textarea id="mq-text-${m.id}" rows="2" placeholder="Question Text" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50"></textarea>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <input type="text" id="mq-opt-0-${m.id}" placeholder="Option A" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                                    <input type="text" id="mq-opt-1-${m.id}" placeholder="Option B" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                                    <input type="text" id="mq-opt-2-${m.id}" placeholder="Option C" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                                    <input type="text" id="mq-opt-3-${m.id}" placeholder="Option D" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                                </div>
+                                                <select id="mq-correct-${m.id}" class="w-full p-2 rounded-lg border border-slate-300 text-xs font-bold bg-slate-50">
+                                                    <option value="0">Option A is Correct</option>
+                                                    <option value="1">Option B is Correct</option>
+                                                    <option value="2">Option C is Correct</option>
+                                                    <option value="3">Option D is Correct</option>
+                                                </select>
+                                                <textarea id="mq-explain-${m.id}" rows="2" placeholder="Explanation" class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50"></textarea>
+                                                <button type="submit" class="w-full bg-navy-800 text-amber-400 font-bold py-2 rounded-xl text-xs">Add Single Question to Mock</button>
+                                            </form>
+
+                                            <form id="form-mock-json-${m.id}" onsubmit="window.handleMockUploadJSON(event, '${m.id}')" class="space-y-3 hidden">
+                                                <textarea id="mq-json-input-${m.id}" rows="6" placeholder='[\n  {\n    "subject": "Chemistry",\n    "topic": "Organic Chemistry",\n    "question": "What is the IUPAC name for CH3COOH?",\n    "options": ["Ethanol", "Ethanoic Acid", "Methanoic Acid", "Acetone"],\n    "correctAnswer": 1,\n    "explanation": "Ethanoic acid is CH3COOH."\n  }\n]' class="w-full p-2.5 rounded-lg border border-slate-300 text-xs font-mono bg-slate-900 text-emerald-400 focus:outline-none"></textarea>
+                                                <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs">Upload JSON Questions to Mock</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                `;}).join('')}
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        window.deleteQuestionFromMock = function(mockId, qId) {
+            if (confirm("Remove/Delete this question from mock exam?")) {
+                const mock = appData.mockExams.find(m => m.id === mockId);
+                if (mock) {
+                    const updatedQuestions = (mock.questions || []).filter(id => id !== qId);
+                    window.saveFirestoreDoc('mockExams', mock.id, { ...mock, questions: updatedQuestions });
+                }
+                window.deleteFirestoreDoc('questions', qId);
+                window.showToast('Question deleted', 'info');
+                renderAdminMocksTab(document.getElementById('admin-tab-content'));
+            }
+        };
+
+        window.toggleMockUploaderForm = function(mockId) {
+            const panel = document.getElementById(`mock-upload-panel-${mockId}`);
+            if (panel) panel.classList.toggle('hidden');
+        };
+
+        window.setMockUploadMode = function(mockId, mode) {
+            const singleForm = document.getElementById(`form-mock-single-${mockId}`);
+            const jsonForm = document.getElementById(`form-mock-json-${mockId}`);
+            const singleBtn = document.getElementById(`mock-btn-single-${mockId}`);
+            const jsonBtn = document.getElementById(`mock-btn-json-${mockId}`);
+
+            if (mode === 'single') {
+                singleForm.classList.remove('hidden');
+                jsonForm.classList.add('hidden');
+                singleBtn.className = "px-2.5 py-1 rounded text-[10px] font-bold bg-navy-800 text-amber-400";
+                jsonBtn.className = "px-2.5 py-1 rounded text-[10px] font-bold bg-slate-100 text-slate-600";
+            } else {
+                jsonForm.classList.remove('hidden');
+                singleForm.classList.add('hidden');
+                jsonBtn.className = "px-2.5 py-1 rounded text-[10px] font-bold bg-navy-800 text-amber-400";
+                singleBtn.className = "px-2.5 py-1 rounded text-[10px] font-bold bg-slate-100 text-slate-600";
+            }
+        };
+
+        window.handleCreateMockExam = function(e) {
+            e.preventDefault();
+            const title = document.getElementById('mock-title-input').value.trim();
+            const subject = document.getElementById('mock-subject-input').value.trim();
+            const duration = parseInt(document.getElementById('mock-duration-input').value) || 30;
+
+            const mockId = 'mock_' + Date.now();
+            const newMock = {
+                title,
+                subject,
+                durationMins: duration,
+                questions: [],
+                resultsReleased: true
+            };
+
+            window.saveFirestoreDoc('mockExams', mockId, newMock);
+            window.showToast('Standalone Mock Session created! Add questions below.', 'success');
+            renderAdminMocksTab(document.getElementById('admin-tab-content'));
+        };
+
+        window.openEditMockModal = function(mockId) {
+            const mock = appData.mockExams.find(m => m.id === mockId);
+            if (!mock) return;
+
+            const modal = document.getElementById('modal-container');
+            const box = document.getElementById('modal-content-box');
+            modal.classList.remove('hidden');
+
+            box.innerHTML = `
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-sm font-bold text-navy-800">Edit Mock Session</h3>
+                    <button onclick="window.closeModal()" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times"></i></button>
+                </div>
+                <form onsubmit="window.handleSaveEditMock(event, '${mockId}')" class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase">Mock Exam Title</label>
+                        <input type="text" id="edit-mock-title" value="${mock.title}" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase">Category / Subject Tag</label>
+                        <input type="text" id="edit-mock-subject" value="${mock.subject}" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase">Duration (Minutes)</label>
+                        <input type="number" id="edit-mock-duration" value="${mock.durationMins}" min="5" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-bold text-navy-800 bg-slate-50">
+                    </div>
+                    <button type="submit" class="w-full bg-navy-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs">Update Mock Session</button>
+                </form>
+            `;
+        };
+
+        window.handleSaveEditMock = function(e, mockId) {
+            e.preventDefault();
+            const mock = appData.mockExams.find(m => m.id === mockId);
+            if (!mock) return;
+
+            mock.title = document.getElementById('edit-mock-title').value.trim();
+            mock.subject = document.getElementById('edit-mock-subject').value.trim();
+            mock.durationMins = parseInt(document.getElementById('edit-mock-duration').value) || 30;
+
+            window.saveFirestoreDoc('mockExams', mockId, mock);
+            window.closeModal();
+            window.showToast('Mock session updated successfully', 'success');
+            renderAdminMocksTab(document.getElementById('admin-tab-content'));
+        };
+
+        window.handleMockUploadSingle = function(e, mockId) {
+            e.preventDefault();
+            const mock = appData.mockExams.find(m => m.id === mockId);
+            if (!mock) return;
+
+            const qId = 'q_' + Date.now();
+            const newQ = {
+                subject: document.getElementById(`mq-subject-${mockId}`).value.trim(),
+                topic: document.getElementById(`mq-topic-${mockId}`).value.trim(),
+                question: document.getElementById(`mq-text-${mockId}`).value.trim(),
+                options: [
+                    document.getElementById(`mq-opt-0-${mockId}`).value.trim(),
+                    document.getElementById(`mq-opt-1-${mockId}`).value.trim(),
+                    document.getElementById(`mq-opt-2-${mockId}`).value.trim(),
+                    document.getElementById(`mq-opt-3-${mockId}`).value.trim()
+                ],
+                correctAnswer: parseInt(document.getElementById(`mq-correct-${mockId}`).value),
+                explanation: document.getElementById(`mq-explain-${mockId}`).value.trim()
+            };
+
+            window.saveFirestoreDoc('questions', qId, newQ);
+            if (!mock.questions) mock.questions = [];
+            mock.questions.push(qId);
+            window.saveFirestoreDoc('mockExams', mock.id, mock);
+
+            window.showToast(`Question added to ${mock.title}!`, 'success');
+            renderAdminMocksTab(document.getElementById('admin-tab-content'));
+        };
+
+        window.handleMockUploadJSON = function(e, mockId) {
+            e.preventDefault();
+            const mock = appData.mockExams.find(m => m.id === mockId);
+            if (!mock) return;
+
+            try {
+                const parsed = JSON.parse(document.getElementById(`mq-json-input-${mockId}`).value);
+                if (!Array.isArray(parsed)) return window.showToast('JSON must be an array of questions', 'error');
+
+                let count = 0;
+                if (!mock.questions) mock.questions = [];
+                parsed.forEach(q => {
+                    if (q.question && Array.isArray(q.options)) {
+                        const qId = 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                        const newQ = {
+                            subject: q.subject || mock.subject,
+                            topic: q.topic || 'General',
+                            question: q.question,
+                            options: q.options,
+                            correctAnswer: typeof q.correctAnswer === 'number' ? q.correctAnswer : 0,
+                            explanation: q.explanation || ''
+                        };
+                        window.saveFirestoreDoc('questions', qId, newQ);
+                        mock.questions.push(qId);
+                        count++;
+                    }
+                });
+
+                window.saveFirestoreDoc('mockExams', mock.id, mock);
+                window.showToast(`Added ${count} questions to ${mock.title}!`, 'success');
+                renderAdminMocksTab(document.getElementById('admin-tab-content'));
+            } catch(err) {
+                window.showToast('Invalid JSON syntax', 'error');
+            }
+        };
+
+        window.toggleScoreRelease = function(mockId) {
+            const mock = appData.mockExams.find(m => m.id === mockId);
+            if (mock) {
+                mock.resultsReleased = !mock.resultsReleased;
+                window.saveFirestoreDoc('mockExams', mock.id, mock);
+                window.showToast(`Scores ${mock.resultsReleased ? 'Released' : 'Locked'}`, 'info');
+                renderAdminMocksTab(document.getElementById('admin-tab-content'));
+            }
+        };
+
+        window.deleteMockExam = function(mockId) {
+            if (confirm("Delete this mock exam?")) {
+                window.deleteFirestoreDoc('mockExams', mockId);
+                renderAdminMocksTab(document.getElementById('admin-tab-content'));
+            }
+        };
+
+        // --- ADMIN QUESTION & FLASHCARD VAULT ---
+        function renderAdminUploadTab(container) {
+            container.innerHTML = `
+                <div class="space-y-8">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                <h3 class="text-xs font-extrabold text-navy-800">
+                                    <i class="fas fa-file-upload text-amber-500 mr-1"></i> Question Bank Manager
+                                </h3>
+                                <div class="flex gap-2">
+                                    <button onclick="window.toggleUploadMode('q', 'single')" id="q-btn-single" class="px-2.5 py-1 rounded text-[10px] font-bold bg-navy-800 text-amber-400">Single</button>
+                                    <button onclick="window.toggleUploadMode('q', 'json')" id="q-btn-json" class="px-2.5 py-1 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Bulk JSON</button>
+                                </div>
+                            </div>
+
+                            <form id="form-q-single" onsubmit="window.handleUploadQuestionSingle(event)" class="space-y-3">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" id="q-subject" placeholder="Subject (e.g. Biology)" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                    <input type="text" id="q-topic" placeholder="Topic Tag" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                </div>
+                                <textarea id="q-text" rows="2" placeholder="Question Text" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50"></textarea>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" id="q-opt-0" placeholder="Option A" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                    <input type="text" id="q-opt-1" placeholder="Option B" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                    <input type="text" id="q-opt-2" placeholder="Option C" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                    <input type="text" id="q-opt-3" placeholder="Option D" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                </div>
+                                <select id="q-correct" class="w-full p-2 rounded-lg border border-slate-300 text-xs font-bold bg-slate-50">
+                                    <option value="0">Option A is Correct</option>
+                                    <option value="1">Option B is Correct</option>
+                                    <option value="2">Option C is Correct</option>
+                                    <option value="3">Option D is Correct</option>
+                                </select>
+                                <textarea id="q-explain" rows="2" placeholder="Explanation" class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50"></textarea>
+                                <button type="submit" class="w-full bg-navy-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs">Add Single Question</button>
+                            </form>
+
+                            <form id="form-q-json" onsubmit="window.handleUploadQuestionJSON(event)" class="space-y-3 hidden">
+                                <textarea id="q-json-input" rows="8" placeholder='[\n  {\n    "subject": "Physics",\n    "topic": "Waves",\n    "question": "Speed of sound in air?",\n    "options": ["330 m/s", "3 x 10^8 m/s", "1500 m/s", "0 m/s"],\n    "correctAnswer": 0,\n    "explanation": "Standard speed of sound in air is ~330m/s."\n  }\n]' class="w-full p-2.5 rounded-lg border border-slate-300 text-xs font-mono bg-slate-900 text-emerald-400 focus:outline-none"></textarea>
+                                <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">Upload JSON Bulk Questions</button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                <h3 class="text-xs font-extrabold text-navy-800">
+                                    <i class="fas fa-clone text-amber-500 mr-1"></i> Flashcard Deck Manager
+                                </h3>
+                                <div class="flex gap-2">
+                                    <button onclick="window.toggleUploadMode('f', 'single')" id="f-btn-single" class="px-2.5 py-1 rounded text-[10px] font-bold bg-navy-800 text-amber-400">Single</button>
+                                    <button onclick="window.toggleUploadMode('f', 'json')" id="f-btn-json" class="px-2.5 py-1 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Bulk JSON</button>
+                                </div>
+                            </div>
+
+                            <form id="form-f-single" onsubmit="window.handleUploadFlashcardSingle(event)" class="space-y-3">
+                                <input type="text" id="f-subject" placeholder="Subject (e.g. Physics)" required class="w-full p-2.5 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                <input type="text" id="f-topic" placeholder="Topic Tag" required class="w-full p-2.5 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                                <input type="text" id="f-concept" placeholder="Front Card Concept / Title" required class="w-full p-2.5 rounded-lg border border-slate-300 text-xs font-bold text-navy-800 bg-slate-50">
+                                <textarea id="f-explanation" rows="4" placeholder="Back Card Formula / Full Explanation" required class="w-full p-2.5 rounded-lg border border-slate-300 text-xs bg-slate-50"></textarea>
+                                <button type="submit" class="w-full bg-amber-500 text-slate-950 font-bold py-2.5 rounded-xl text-xs">Add Single Flashcard</button>
+                            </form>
+
+                            <form id="form-f-json" onsubmit="window.handleUploadFlashcardJSON(event)" class="space-y-3 hidden">
+                                <textarea id="f-json-input" rows="8" placeholder='[\n  {\n    "subject": "Chemistry",\n    "topic": "Stoichiometry",\n    "concept": "Avogadro Constant",\n    "explanation": "6.022 x 10^23 particles per mole of substance."\n  }\n]' class="w-full p-2.5 rounded-lg border border-slate-300 text-xs font-mono bg-slate-900 text-amber-300 focus:outline-none"></textarea>
+                                <button type="submit" class="w-full bg-amber-500 text-slate-950 font-bold py-2.5 rounded-xl text-xs">Upload JSON Bulk Flashcards</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <h3 class="text-xs font-extrabold text-navy-800">Manage Uploaded Questions (${appData.questions.length})</h3>
+                            <div class="max-h-96 overflow-y-auto space-y-2 pr-1">
+                                ${appData.questions.length === 0 ? `<div class="text-xs text-slate-400 text-center py-6">No questions added yet.</div>` : appData.questions.map((q, idx) => `
+                                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between items-start gap-2 text-xs">
+                                        <div>
+                                            <span class="font-bold text-navy-800">[${q.subject}]</span> <span class="text-slate-600">${q.question}</span>
+                                        </div>
+                                        <div class="flex gap-2 shrink-0">
+                                            <button onclick="window.openEditQuestionModal('${q.id}')" class="text-amber-600 font-bold"><i class="fas fa-edit"></i></button>
+                                            <button onclick="window.deleteQuestion('${q.id}')" class="text-red-600 font-bold"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <h3 class="text-xs font-extrabold text-navy-800">Manage Uploaded Flashcards (${appData.flashcards.length})</h3>
+                            <div class="max-h-96 overflow-y-auto space-y-2 pr-1">
+                                ${appData.flashcards.length === 0 ? `<div class="text-xs text-slate-400 text-center py-6">No flashcards added yet.</div>` : appData.flashcards.map((f, idx) => `
+                                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between items-start gap-2 text-xs">
+                                        <div>
+                                            <span class="font-bold text-navy-800">[${f.subject}]</span> <span class="font-semibold">${f.concept}</span>
+                                        </div>
+                                        <div class="flex gap-2 shrink-0">
+                                            <button onclick="window.openEditFlashcardModal('${f.id}')" class="text-amber-600 font-bold"><i class="fas fa-edit"></i></button>
+                                            <button onclick="window.deleteFlashcard('${f.id}')" class="text-red-600 font-bold"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.toggleUploadMode = function(type, mode) {
+            const singleForm = document.getElementById(`form-${type}-single`);
+            const jsonForm = document.getElementById(`form-${type}-json`);
+            const singleBtn = document.getElementById(`${type}-btn-single`);
+            const jsonBtn = document.getElementById(`${type}-btn-json`);
+
+            if (mode === 'single') {
+                singleForm.classList.remove('hidden');
+                jsonForm.classList.add('hidden');
+                singleBtn.className = "px-2.5 py-1 rounded text-[10px] font-bold bg-navy-800 text-amber-400";
+                jsonBtn.className = "px-2.5 py-1 rounded text-[10px] font-bold bg-slate-100 text-slate-600";
+            } else {
+                jsonForm.classList.remove('hidden');
+                singleForm.classList.add('hidden');
+                jsonBtn.className = "px-2.5 py-1 rounded text-[10px] font-bold bg-navy-800 text-amber-400";
+                singleBtn.className = "px-2.5 py-1 rounded text-[10px] font-bold bg-slate-100 text-slate-600";
+            }
+        };
+
+        window.handleUploadQuestionSingle = function(e) {
+            e.preventDefault();
+            const qId = 'q_' + Date.now();
+            const newQ = {
+                subject: document.getElementById('q-subject').value.trim(),
+                topic: document.getElementById('q-topic').value.trim(),
+                question: document.getElementById('q-text').value.trim(),
+                options: [
+                    document.getElementById('q-opt-0').value.trim(),
+                    document.getElementById('q-opt-1').value.trim(),
+                    document.getElementById('q-opt-2').value.trim(),
+                    document.getElementById('q-opt-3').value.trim()
+                ],
+                correctAnswer: parseInt(document.getElementById('q-correct').value),
+                explanation: document.getElementById('q-explain').value.trim()
+            };
+            window.saveFirestoreDoc('questions', qId, newQ);
+            window.showToast('Question added to bank!', 'success');
+            renderAdminUploadTab(document.getElementById('admin-tab-content'));
+        };
+
+        window.handleUploadQuestionJSON = function(e) {
+            e.preventDefault();
+            try {
+                const parsed = JSON.parse(document.getElementById('q-json-input').value);
+                if (!Array.isArray(parsed)) return window.showToast('JSON must be an array of questions', 'error');
+
+                let count = 0;
+                parsed.forEach(q => {
+                    if (q.subject && q.question && Array.isArray(q.options)) {
+                        const qId = 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                        const newQ = {
+                            subject: q.subject,
+                            topic: q.topic || 'General',
+                            question: q.question,
+                            options: q.options,
+                            correctAnswer: typeof q.correctAnswer === 'number' ? q.correctAnswer : 0,
+                            explanation: q.explanation || ''
+                        };
+                        window.saveFirestoreDoc('questions', qId, newQ);
+                        count++;
+                    }
+                });
+
+                window.showToast(`Successfully imported ${count} questions in bulk!`, 'success');
+                renderAdminUploadTab(document.getElementById('admin-tab-content'));
+            } catch(err) {
+                window.showToast('Invalid JSON format syntax', 'error');
+            }
+        };
+
+        window.deleteQuestion = function(qId) {
+            if (confirm("Delete this question from vault?")) {
+                window.deleteFirestoreDoc('questions', qId);
+                appData.mockExams.forEach(m => {
+                    if (m.questions && m.questions.includes(qId)) {
+                        m.questions = m.questions.filter(id => id !== qId);
+                        window.saveFirestoreDoc('mockExams', m.id, m);
+                    }
+                });
+                renderAdminUploadTab(document.getElementById('admin-tab-content'));
+                window.showToast('Question deleted', 'info');
+            }
+        };
+
+        window.openEditQuestionModal = function(qId) {
+            const q = appData.questions.find(item => item.id === qId);
+            if (!q) return;
+
+            const modal = document.getElementById('modal-container');
+            const box = document.getElementById('modal-content-box');
+            modal.classList.remove('hidden');
+
+            box.innerHTML = `
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-sm font-bold text-navy-800">Edit Question</h3>
+                    <button onclick="window.closeModal()" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times"></i></button>
+                </div>
+                <form onsubmit="window.handleSaveEditQuestion(event, '${qId}')" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="edit-q-subject" value="${q.subject}" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                        <input type="text" id="edit-q-topic" value="${q.topic}" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                    </div>
+                    <textarea id="edit-q-text" rows="2" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">${q.question}</textarea>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="edit-q-opt-0" value="${q.options[0] || ''}" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                        <input type="text" id="edit-q-opt-1" value="${q.options[1] || ''}" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                        <input type="text" id="edit-q-opt-2" value="${q.options[2] || ''}" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                        <input type="text" id="edit-q-opt-3" value="${q.options[3] || ''}" required class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                    </div>
+                    <select id="edit-q-correct" class="w-full p-2 rounded-lg border border-slate-300 text-xs font-bold bg-slate-50">
+                        <option value="0" ${q.correctAnswer === 0 ? 'selected' : ''}>Option A is Correct</option>
+                        <option value="1" ${q.correctAnswer === 1 ? 'selected' : ''}>Option B is Correct</option>
+                        <option value="2" ${q.correctAnswer === 2 ? 'selected' : ''}>Option C is Correct</option>
+                        <option value="3" ${q.correctAnswer === 3 ? 'selected' : ''}>Option D is Correct</option>
+                    </select>
+                    <textarea id="edit-q-explain" rows="2" class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-slate-50">${q.explanation || ''}</textarea>
+                    <button type="submit" class="w-full bg-navy-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs">Update Question</button>
+                </form>
+            `;
+        };
+
+        window.handleSaveEditQuestion = function(e, qId) {
+            e.preventDefault();
+            const subject = document.getElementById('edit-q-subject').value.trim();
+            const topic = document.getElementById('edit-q-topic').value.trim();
+            const question = document.getElementById('edit-q-text').value.trim();
+            const options = [
+                document.getElementById('edit-q-opt-0').value.trim(),
+                document.getElementById('edit-q-opt-1').value.trim(),
+                document.getElementById('edit-q-opt-2').value.trim(),
+                document.getElementById('edit-q-opt-3').value.trim()
+            ];
+            const correctAnswer = parseInt(document.getElementById('edit-q-correct').value);
+            const explanation = document.getElementById('edit-q-explain').value.trim();
+
+            window.saveFirestoreDoc('questions', qId, { subject, topic, question, options, correctAnswer, explanation });
+            window.closeModal();
+            window.showToast('Question updated successfully', 'success');
+            if (appState.activeTab === 'mocks') {
+                renderAdminMocksTab(document.getElementById('admin-tab-content'));
+            } else {
+                renderAdminUploadTab(document.getElementById('admin-tab-content'));
+            }
+        };
+
+        window.handleUploadFlashcardSingle = function(e) {
+            e.preventDefault();
+            const fId = 'f_' + Date.now();
+            const newF = {
+                subject: document.getElementById('f-subject').value.trim(),
+                topic: document.getElementById('f-topic').value.trim(),
+                concept: document.getElementById('f-concept').value.trim(),
+                explanation: document.getElementById('f-explanation').value.trim()
+            };
+            window.saveFirestoreDoc('flashcards', fId, newF);
+            window.showToast('Flashcard created!', 'success');
+            renderAdminUploadTab(document.getElementById('admin-tab-content'));
+        };
+
+        window.handleUploadFlashcardJSON = function(e) {
+            e.preventDefault();
+            try {
+                const parsed = JSON.parse(document.getElementById('f-json-input').value);
+                if (!Array.isArray(parsed)) return window.showToast('JSON must be an array', 'error');
+
+                let count = 0;
+                parsed.forEach(f => {
+                    if (f.subject && f.concept && f.explanation) {
+                        const fId = 'f_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                        const newF = {
+                            subject: f.subject,
+                            topic: f.topic || 'General',
+                            concept: f.concept,
+                            explanation: f.explanation
+                        };
+                        window.saveFirestoreDoc('flashcards', fId, newF);
+                        count++;
+                    }
+                });
+
+                window.showToast(`Successfully imported ${count} flashcards in bulk!`, 'success');
+                renderAdminUploadTab(document.getElementById('admin-tab-content'));
+            } catch(err) {
+                window.showToast('Invalid JSON syntax', 'error');
+            }
+        };
+
+        window.deleteFlashcard = function(fId) {
+            if (confirm("Delete this flashcard?")) {
+                window.deleteFirestoreDoc('flashcards', fId);
+                renderAdminUploadTab(document.getElementById('admin-tab-content'));
+                window.showToast('Flashcard deleted', 'info');
+            }
+        };
+
+        window.openEditFlashcardModal = function(fId) {
+            const f = appData.flashcards.find(item => item.id === fId);
+            if (!f) return;
+
+            const modal = document.getElementById('modal-container');
+            const box = document.getElementById('modal-content-box');
+            modal.classList.remove('hidden');
+
+            box.innerHTML = `
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-sm font-bold text-navy-800">Edit Flashcard</h3>
+                    <button onclick="window.closeModal()" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times"></i></button>
+                </div>
+                <form onsubmit="window.handleSaveEditFlashcard(event, '${fId}')" class="space-y-3">
+                    <input type="text" id="edit-f-subject" value="${f.subject}" required class="w-full p-2.5 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                    <input type="text" id="edit-f-topic" value="${f.topic}" required class="w-full p-2.5 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                    <input type="text" id="edit-f-concept" value="${f.concept}" required class="w-full p-2.5 rounded-lg border border-slate-300 text-xs font-bold text-navy-800 bg-slate-50">
+                    <textarea id="edit-f-explanation" rows="4" required class="w-full p-2.5 rounded-lg border border-slate-300 text-xs bg-slate-50">${f.explanation}</textarea>
+                    <button type="submit" class="w-full bg-amber-500 text-slate-950 font-bold py-2.5 rounded-xl text-xs">Update Flashcard</button>
+                </form>
+            `;
+        };
+
+        window.handleSaveEditFlashcard = function(e, fId) {
+            e.preventDefault();
+            const subject = document.getElementById('edit-f-subject').value.trim();
+            const topic = document.getElementById('edit-f-topic').value.trim();
+            const concept = document.getElementById('edit-f-concept').value.trim();
+            const explanation = document.getElementById('edit-f-explanation').value.trim();
+
+            window.saveFirestoreDoc('flashcards', fId, { subject, topic, concept, explanation });
+            window.closeModal();
+            window.showToast('Flashcard updated successfully', 'success');
+            renderAdminUploadTab(document.getElementById('admin-tab-content'));
+        };
+
+        window.closeModal = function() {
+            document.getElementById('modal-container').classList.add('hidden');
+        };
+
+        // Initialize application on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            window.renderApp();
+        });
+    </script>
+</body>
+</html>
